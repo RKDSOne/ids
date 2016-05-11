@@ -48,8 +48,8 @@ class foo(QWidget):
             confs_txt.setText(';\n'.join(s.conf["confpaths"]))
 
         # Buttons
-        upd = QPushButton('Update')
-        upd.setToolTip('Update the path info in config file.')
+        upd = QPushButton('Set root here')
+        upd.setToolTip('Update root direcroty to be here')
         upd.clicked.connect(update_path)
         sout = QPushButton('Send-out')
         sout.setToolTip('Send out the modification.')

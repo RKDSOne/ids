@@ -3,15 +3,18 @@ import os
 from PyQt4.QtGui import *
 from PyQt4.QtCore import pyqtSlot
 import json
+import shutil
 
 
-class ConfDistributer(QWidget):
+class foo(QWidget):
 
     def readConf(s):
+        # back up the old file first
+        shutil.copyfile('./conf.json', './conf.json.bk')
         s.conf = json.load(open('./conf.json'))
 
     def __init__(s):
-        super(ConfDistributer, s).__init__()
+        super(foo, s).__init__()
         try:
             s.readConf()
         except IOError:
@@ -23,14 +26,18 @@ class ConfDistributer(QWidget):
     def initCompo(s):
         @pyqtSlot()
         def update_path():
-            cur_path = os.getcwd()
+            cur_path = os.path.abspath('..')
             path_txt.setText(cur_path)
 
         @pyqtSlot()
         def sendout_conf():
-            s.conf["path"] = path_txt.text()
-            s.conf["dpath"] = dpath_txt.text()
-            s.conf["confpaths"] = [i.strip() for i in confs_txt.split(';')]
+            s.conf["path"] = str(path_txt.text())
+            s.conf["dpath"] = str(dpath_txt.text())
+            s.conf["confpaths"] = [i.strip()
+                                   for i in str(confs_txt.toPlainText()).split(';')]
+            s.conf["confpaths"] = filter(
+                lambda o: o != '', s.conf["confpaths"])
+
             for fpath in s.conf["confpaths"]:
                 full_path = os.path.join(s.conf["path"], fpath, 'conf.json')
                 json.dump(s.conf, open(full_path, 'w'))
@@ -42,7 +49,7 @@ class ConfDistributer(QWidget):
 
         # Buttons
         upd = QPushButton('Set root here')
-        upd.setToolTip('Set root path to the current directory')
+        upd.setToolTip('Update root direcroty to be here')
         upd.clicked.connect(update_path)
         sout = QPushButton('Send-out')
         sout.setToolTip('Send out the modification.')
@@ -80,7 +87,7 @@ class ConfDistributer(QWidget):
 
 def main():
     app = QApplication(sys.argv)
-    w = ConfDistributer()
+    w = foo()
     sys.exit(app.exec_())
 
 
