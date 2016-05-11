@@ -47,36 +47,41 @@ def evaluate(mdl, dname, folds=5):
 
 
 def main():
-    n_jobs = -1
+    paral_jobs = -1
+    # thread_method = 'multiprocessing'
+    thread_method = 'threading'
     data_list = ['abalone', 'isolet', 'letter', 'mf-zer', 'mf-mor', 'pima', 'sat']
     gamma_list = [1e-12, 1e-11, 1e-10, 1e-9, 1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 5, 10, 20]
     for data in data_list:
         # parallel experiments.
 
-        Parallel(n_jobs=-1)(
+        Parallel(n_jobs=paral_jobs, backend=thread_method)(
             delayed(evaluate)(EasyEnsemble(subimba=1, mdl_args=dict(gamma=gamma)), data) for gamma in gamma_list)
         print 'ok EasyEnsemble'
         sys.stdout.flush()
 
-        Parallel(n_jobs=-1)(delayed(evaluate)(SVC(gamma=gamma), data) for gamma in gamma_list)
+        Parallel(n_jobs=paral_jobs, backend=thread_method)(
+            delayed(evaluate)(SVC(gamma=gamma), data) for gamma in gamma_list)
         print 'ok SVC'
         sys.stdout.flush()
 
-        Parallel(n_jobs=-1)(
+        Parallel(n_jobs=paral_jobs, backend=thread_method)(
             delayed(evaluate)(HKME(svc_args=dict(gamma=gamma_svc), svdd_args=dict(gamma=gamma_svdd)), data) for
             gamma_svc in gamma_list for gamma_svdd in gamma_list)
         print 'ok HKME'
         sys.stdout.flush()
 
-        Parallel(n_jobs=-1)(delayed(evaluate)(vSVM(mdl_args=dict(gamma=gamma)), data) for gamma in gamma_list)
+        Parallel(n_jobs=paral_jobs, backend=thread_method)(
+            delayed(evaluate)(vSVM(mdl_args=dict(gamma=gamma)), data) for gamma in gamma_list)
         print 'ok vSVM'
         sys.stdout.flush()
 
-        Parallel(n_jobs=-1)(delayed(evaluate)(SMOTE(5, 3, mdl_args=dict(gamma=gamma)), data) for gamma in gamma_list)
+        Parallel(n_jobs=paral_jobs, backend=thread_method)(
+            delayed(evaluate)(SMOTE(5, 3, mdl_args=dict(gamma=gamma)), data) for gamma in gamma_list)
         print 'ok SMOTE'
         sys.stdout.flush()
 
-        Parallel(n_jobs=-1)(
+        Parallel(n_jobs=paral_jobs, backend=thread_method)(
             delayed(evaluate)(MWMOTE(7, 5, 5, 3, 5, mdl_args=dict(gamma=gamma)), data) for gamma in gamma_list)
         print 'ok MWMOTE'
         sys.stdout.flush()
@@ -89,7 +94,12 @@ def main():
         # evaluate(SMOTE(5, 3), data)
         # evaluate(MWMOTE(7, 5, 5, 3, 5), data)
 
+def unit_test():
+    data_list = ['abalone', 'isolet', 'letter', 'mf-zer', 'mf-mor', 'pima', 'sat']
+    for i in xrange(100):
+        for data in data_list:
+            evaluate(MWMOTE(7, 5, 5, 3, 5), data)
 
 if __name__ == '__main__':
-    main()
-    json.dump(global_res_table, open('res.json', 'w'))
+    unit_test()
+    # json.dump(global_res_table, open('res.json', 'w'))
