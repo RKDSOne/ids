@@ -43,9 +43,14 @@ def evaluate(mdl, dname, folds=5):
         ans = tst[:, -1]
         pred = mdl.predict(tst[:, :-1])
         res.append(confusion_matrix(ans, pred))
-    # TODO: record evaluations here.
+    if hasattr(mdl, 'gamma'):
+        param_gamma = mdl.gamma
+    elif hasattr(mdl, 'mdl_args'):
+        param_gamma = mdl.mdl_args["gamma"]
+    else:
+        param_gamma = str(mdl.bsvm.gamma)+';'+str(mdl.vsvm.gamma)
     global_res_table[mdl.__class__.__name__ + ',' +
-                     str(mdl.mdl_args["gamma"]) + ',' + dname] = analyse_res(res)
+                     str(param_gamma) + ',' + dname] = analyse_res(res)
 
 
 def main():
