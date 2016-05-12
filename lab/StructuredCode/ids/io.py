@@ -18,9 +18,11 @@ class DataReader:
 
         df = pd.read_csv(s.conf["dpath"] + filepath(dataset))
         if sep_label:
-            return np.array(df.ix[:, :-1]).astype('float64'), np.array(
-                map(lambda o: float(o[1:]), df.ix[:, -1])).astype('float64')
+            ret = np.array(df.ix[:, :-1]).astype('float64'), np.array(map(lambda o: float(o[1:]), df.ix[:, -1])).astype('float64')
+            return ret
         else:
             ret = np.array(df)
             ret[:, -1] = np.array(map(lambda o: float(o[1:]), ret[:, -1]))
-            return ret.astype('float64')
+            ret=ret.astype('float64')
+            return ret
+

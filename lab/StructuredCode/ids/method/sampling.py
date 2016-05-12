@@ -78,17 +78,16 @@ class MWMOTE(imalgo):
                                 range(s.X.shape[0]))
         minoX = s.X[s.y == s.minolab]
         majX = s.X[s.y == s.majlab]
+
         mdl_maj = NearestNeighbors(n_neighbors=s.k2, n_jobs=-1)
         mdl_maj.fit(majX)
-
         # all majority examples on the bound
         _, tmp = mdl_maj.kneighbors(s.X[noise_mino_idx])
-
         # remove dumplicate examples
         bound_maj_idx = np.unique(np.reshape(tmp, (1, -1))[0])
+
         mdl_mino = NearestNeighbors(n_neighbors=s.k3, n_jobs=-1)
         mdl_mino.fit(minoX)
-
         # find minority examples on the bound backward
         _, tmp = mdl_mino.kneighbors(majX[bound_maj_idx])
         bound_mino_idx = np.unique(np.reshape(tmp, (1, -1))[0])
@@ -100,12 +99,15 @@ class MWMOTE(imalgo):
         # Due to broadcast(strech), diff[i][j][k] would be maj[i][k]-mino[j][k],
         # thus vector diff[i][j]=maj[i]-mino[j] representing the outer vector diff.
         diff = bound_maj[:, None, :] - bound_mino
-        Cf = lambda o: min(s.X.shape[1] / np.linalg.norm(o, 2), s.Cfth) / s.Cfth
+        Cf = lambda o: min(s.X.shape[1] / np.linalg.norm(o, 2), s.Cfth) * 1.0 / s.Cfth
         CM = np.apply_along_axis(Cf, 2, diff)
+
         W = np.mean(((CM * CM).T / np.sum(CM, axis=1)).T, axis=0)
 
         # P is the normalized Weight Vector, standing for the probability chosen to synthese
         P = W / np.sum(W)
+
+        # np.save(open('W-{0}.ndarray'.format(s.mdl_args["gamma"]), 'w'), CM)
 
         # choose N bound minority examples to synthese, selection probability accroding to their weight
         chosen = np.random.choice(range(len(P)), size=s.N, p=P)

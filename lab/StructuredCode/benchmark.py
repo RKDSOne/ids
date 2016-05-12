@@ -33,6 +33,7 @@ def evaluate(mdl, dname, folds=5):
     # print '{0}\t{1}>>>'.format(mdl.__class__.__name__, dname)
     idsdr = DataReader()
     data = idsdr.read(dname, sep_label=False)
+
     res = []
     for tr_idx, tst_idx in KFold(data.shape[0], n_folds=folds, shuffle=True):
         tr = data[tr_idx]
@@ -43,7 +44,8 @@ def evaluate(mdl, dname, folds=5):
         pred = mdl.predict(tst[:, :-1])
         res.append(confusion_matrix(ans, pred))
     # TODO: record evaluations here.
-    global_res_table[(mdl.__class__.__name__, dname)] = analyse_res(res)
+    global_res_table[mdl.__class__.__name__ + ',' +
+                     str(mdl.mdl_args["gamma"]) + ',' + dname] = analyse_res(res)
 
 
 def main():
@@ -94,12 +96,16 @@ def main():
         # evaluate(SMOTE(5, 3), data)
         # evaluate(MWMOTE(7, 5, 5, 3, 5), data)
 
+
 def unit_test():
-    data_list = ['abalone', 'isolet', 'letter', 'mf-zer', 'mf-mor', 'pima', 'sat']
-    for i in xrange(100):
-        for data in data_list:
-            evaluate(MWMOTE(7, 5, 5, 3, 5), data)
+    data_list = ['abalone', 'isolet', 'letter',
+                 'mf-zer', 'mf-mor', 'pima', 'sat']
+
+    for data in data_list:
+        evaluate(MWMOTE(7, 5, 5, 3, 5), data)
+
 
 if __name__ == '__main__':
-    unit_test()
-    # json.dump(global_res_table, open('res.json', 'w'))
+    # unit_test()
+    main()
+    json.dump(global_res_table, open('res.json', 'w'))
