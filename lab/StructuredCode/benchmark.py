@@ -43,9 +43,14 @@ def evaluate(mdl, dname, folds=5):
         ans = tst[:, -1]
         pred = mdl.predict(tst[:, :-1])
         res.append(confusion_matrix(ans, pred))
-    # TODO: record evaluations here.
+    if hasattr(mdl, 'gamma'):
+        param_gamma = mdl.gamma
+    elif hasattr(mdl, 'mdl_args'):
+        param_gamma = mdl.mdl_args["gamma"]
+    else:
+        param_gamma = str(mdl.bsvm.gamma)+';'+str(mdl.vsvm.gamma)
     global_res_table[mdl.__class__.__name__ + ',' +
-                     str(mdl.mdl_args["gamma"]) + ',' + dname] = analyse_res(res)
+                     str(param_gamma) + ',' + dname] = analyse_res(res)
 
 
 def main():
@@ -53,7 +58,7 @@ def main():
     # thread_method = 'multiprocessing'
     thread_method = 'threading'
     data_list = ['abalone', 'isolet', 'letter', 'mf-zer', 'mf-mor', 'pima', 'sat']
-    gamma_list = [1e-12, 1e-11, 1e-10, 1e-9, 1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 5, 10, 20]
+    gamma_list = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 5]
     for data in data_list:
         # parallel experiments.
 

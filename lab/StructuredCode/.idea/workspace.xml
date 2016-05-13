@@ -24,9 +24,18 @@
       <file leaf-file-name="benchmark.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/benchmark.py">
           <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
             <state relative-caret-position="832">
               <caret line="108" column="0" selection-start-line="108" selection-start-column="0" selection-end-line="108" selection-end-column="0" />
               <folding />
+=======
+            <state relative-caret-position="407">
+              <caret line="50" column="71" selection-start-line="50" selection-start-column="71" selection-end-line="50" selection-end-column="71" />
+              <folding>
+                <element signature="e#0#33#0" expanded="true" />
+                <marker date="1463052304804" expanded="true" signature="3789:3867" placeholder="..." />
+              </folding>
+>>>>>>> 991f9dabce0ce446b75a89ac9fca41ae7a01dbfd
             </state>
           </provider>
         </entry>
@@ -129,6 +138,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+<<<<<<< HEAD
       <pane id="Scope">
         <subPane subId="Problems" />
         <subPane subId="Project Files">
@@ -143,6 +153,10 @@
             </PATH_ELEMENT>
           </PATH>
         </subPane>
+=======
+      <pane id="Scratches">
+        <subPane />
+>>>>>>> 991f9dabce0ce446b75a89ac9fca41ae7a01dbfd
       </pane>
       <pane id="ProjectPane">
         <subPane>
@@ -164,8 +178,25 @@
           </PATH>
         </subPane>
       </pane>
+<<<<<<< HEAD
       <pane id="Scratches">
         <subPane />
+=======
+      <pane id="Scope">
+        <subPane subId="Problems" />
+        <subPane subId="Project Files">
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="StructuredCode">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+>>>>>>> 991f9dabce0ce446b75a89ac9fca41ae7a01dbfd
       </pane>
     </panes>
   </component>
@@ -685,9 +716,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/benchmark.py">
       <provider selected="true" editor-type-id="text-editor">
+<<<<<<< HEAD
         <state relative-caret-position="832">
           <caret line="108" column="0" selection-start-line="108" selection-start-column="0" selection-end-line="108" selection-end-column="0" />
           <folding />
+=======
+        <state relative-caret-position="407">
+          <caret line="50" column="71" selection-start-line="50" selection-start-column="71" selection-end-line="50" selection-end-column="71" />
+          <folding>
+            <element signature="e#0#33#0" expanded="true" />
+            <marker date="1463052304804" expanded="true" signature="3789:3867" placeholder="..." />
+          </folding>
+>>>>>>> 991f9dabce0ce446b75a89ac9fca41ae7a01dbfd
         </state>
       </provider>
     </entry>

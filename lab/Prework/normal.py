@@ -12,7 +12,7 @@ def recursive_normalization(path):
         X = X.astype('float64')
         X = np.apply_along_axis(lambda o: (o - np.mean(o)) / np.std(o), 0, X)
         data = np.hstack((X, y[:, None]))
-        df.ix[:,:] = data
+        df.ix[:, :] = data
         df.to_csv(csv_name, index=False)
 
     _, folders, files = next(os.walk(path))
