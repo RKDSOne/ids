@@ -1,6 +1,7 @@
 from sklearn.neighbors import NearestNeighbors
 from sklearn.svm import SVC
 from base import *
+import time as pytime
 
 
 class SMOTE(imalgo):
@@ -125,12 +126,25 @@ class MWMOTE(imalgo):
 
     @imalgo.datazip_decorator
     def fit(s, data):
+        def toc(prev_time):
+            cur = pytime.clock()
+            print cur - prev_time
+            return cur
+
+        # tmp_time = pytime.clock()
         s.load_data(data)
+        # tmp_time = toc(tmp_time)
+
         s.identify()
+        # tmp_time = toc(tmp_time)
+
         s.sampled_mdl = SVC(**s.mdl_args)
         s.N = int(s.rate * sum(s.y == s.minolab))
         sampled_data = s.sample()
+        # tmp_time = toc(tmp_time)
+
         s.sampled_mdl.fit(sampled_data[:, :-1], sampled_data[:, -1])
+        # tmp_time = toc(tmp_time)
 
     def predict(s, X):
         return s.sampled_mdl.predict(X)

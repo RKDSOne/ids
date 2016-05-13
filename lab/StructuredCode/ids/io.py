@@ -5,11 +5,10 @@ import os
 
 
 class DataReader:
-    """description of class"""
+    """A cache for reading data"""
 
     def __init__(s):
         s.conf = json.load(open("conf.json"))
-
     def read(s, dataset, sep_label=True):
         def filepath(dname):
             if dname.find('-') != -1:
