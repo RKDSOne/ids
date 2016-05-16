@@ -11,7 +11,7 @@ import sys
 cache = {}
 
 
-def analyse_res(res):
+def analyze_confusion(res):
     pf = {}
     tmp = None
     for i in res:
@@ -25,6 +25,8 @@ def analyse_res(res):
         pf['precision'] = -1
     pf['recall'] = 1.0 * tmp[1][1] / (tmp[1][1] + tmp[1][0])
     pf['f1'] = 1.0 * tmp[1][1] / (tmp[1][1] * 2 + tmp[1][0] + tmp[0][1])
+    pf['FP'] = 1.0 * tmp[0][1] / (tmp[0][0] + tmp[0][1])
+    pf['TP'] = 1.0 * tmp[1][1] / (tmp[1][1] + tmp[1][0])
     return pf
 
 
@@ -57,7 +59,7 @@ def evaluate(mdl, dname, folds=5):
         param_gamma = mdl.mdl_args["gamma"]
     else:
         param_gamma = str(mdl.bsvm.gamma) + ';' + str(mdl.vsvm.gamma)
-    return [mdl.__class__.__name__ + ',' + str(param_gamma) + ',' + dname, analyse_res(res)]
+    return [mdl.__class__.__name__ + ',' + str(param_gamma) + ',' + dname, analyze_confusion(res)]
 
 
 def main():
@@ -65,7 +67,7 @@ def main():
     # thread_method = 'multiprocessing'
     thread_method = 'threading'
     data_list = ['abalone', 'isolet', 'letter', 'mf-zer', 'mf-mor', 'pima', 'sat']
-    gamma_list = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1]
+    gamma_list = [1e-4, 1e-3, 1e-2, 1e-1, 1, 2, 4, 8]
 
     all_res = {}
     for data in data_list:
@@ -113,18 +115,18 @@ def main():
             all_res[k] = v
         print 'ok MWMOTE'
         sys.stdout.flush()
+    json.dump(all_res, open('res.json', 'w'))
 
 
 def unit_test():
     data_list = ['abalone', 'isolet', 'letter',
                  'mf-zer', 'mf-mor', 'pima', 'sat']
 
-    for data in ['letter']:
+    for data in data_list[:1]:
         ret = evaluate(MWMOTE(7, 5, 5, 3, 5, mdl_args=dict(gamma=1)), data)
         print ret
 
 
 if __name__ == '__main__':
-    unit_test()
-    # main()
-    # json.dump(global_res_table, open('res.json', 'w'))
+    # unit_test()
+    main()
