@@ -19,14 +19,6 @@ def analyze_confusion(res):
             tmp = i
         else:
             tmp = tmp + i
-    # try:
-    #     pf['precision'] = 1.0 * tmp[1][1] / (tmp[1][1] + tmp[0][1])
-    # except ZeroDivisionError:
-    #     pf['precision'] = -1
-    # pf['recall'] = 1.0 * tmp[1][1] / (tmp[1][1] + tmp[1][0])
-    # pf['f1'] = 1.0 * tmp[1][1] / (tmp[1][1] * 2 + tmp[1][0] + tmp[0][1])
-    # pf['FP'] = 1.0 * tmp[0][1] / (tmp[0][0] + tmp[0][1])
-    # pf['TP'] = 1.0 * tmp[1][1] / (tmp[1][1] + tmp[1][0])
     return tmp.tolist()
 
 
@@ -66,8 +58,9 @@ def main():
     paral_jobs = -1
     # thread_method = 'multiprocessing'
     thread_method = 'threading'
-    data_list = ['abalone', 'isolet', 'letter', 'mf-zer', 'mf-mor', 'pima', 'sat']
-    gamma_list = [1e-4, 1e-3, 1e-2, 1e-1, 1, 2, 4, 8]
+    data_list = ['abalone', 'isolet', 'letter',
+        'mf-zer', 'mf-mor', 'pima', 'sat']
+    gamma_list = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 2, 4, 8, 16, 32]
 
     all_res = {}
     for data in data_list:
@@ -115,24 +108,30 @@ def main():
             all_res[k] = v
         print 'ok MWMOTE'
         sys.stdout.flush()
-    json.dump(all_res, open('res.json', 'w'))
+
+    conf = json.load(open('conf.json'))
+    folder_path = os.path.join(conf['path'], 'lab/results')
+    files_cnt = len(os.listdir(folder_path))
+    file_path = os.path.join(
+        conf['path'], 'lab/results', 'res{0}.json'.format(files_cnt + 1))
+    json.dump(all_res, open(os.path.join(file_path), 'w'))
 
 
 def unit_test():
-    data_list = ['abalone', 'isolet', 'letter',
+    data_list=['abalone', 'isolet', 'letter',
                  'mf-zer', 'mf-mor', 'pima', 'sat']
 
     for data in data_list[:1]:
-        ret = evaluate(MTS(), data)
+        ret=evaluate(MTS(), data)
         print ret
 
 
 def test_MTS(dname):
-    idsdr = DataReader()
-    data = idsdr.read(dname, sep_label=False)
-    mdl = MTS(0.08)
+    idsdr=DataReader()
+    data=idsdr.read(dname, sep_label=False)
+    mdl=MTS(0.08)
     mdl.fit(data)
-    res = mdl.predict(data[mdl.y == mdl.majlab, :-1])
+    res=mdl.predict(data[mdl.y == mdl.majlab, :-1])
     print res
     print '{0} of {1} predicted right'.format(len(res), sum(res))
 
