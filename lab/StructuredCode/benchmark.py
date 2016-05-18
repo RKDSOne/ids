@@ -87,13 +87,13 @@ def main():
         print 'ok SVC'
         sys.stdout.flush()
 
-        ret = Parallel(n_jobs=paral_jobs, backend=thread_method)(
-            delayed(evaluate)(HKME(svc_args=dict(gamma=gamma_svc), svdd_args=dict(gamma=gamma_svdd)), data) for
-            gamma_svc in gamma_list for gamma_svdd in gamma_list)
-        for k, v in ret:
-            all_res[k] = v
-        print 'ok HKME'
-        sys.stdout.flush()
+        # ret = Parallel(n_jobs=paral_jobs, backend=thread_method)(
+        #     delayed(evaluate)(HKME(svc_args=dict(gamma=gamma_svc), svdd_args=dict(gamma=gamma_svdd)), data) for
+        #     gamma_svc in gamma_list for gamma_svdd in gamma_list)
+        # for k, v in ret:
+        #     all_res[k] = v
+        # print 'ok HKME'
+        # sys.stdout.flush()
 
         ret = Parallel(n_jobs=paral_jobs, backend=thread_method)(
             delayed(evaluate)(vSVM(mdl_args=dict(gamma=gamma)), data) for gamma in gamma_list)
@@ -123,10 +123,18 @@ def unit_test():
                  'mf-zer', 'mf-mor', 'pima', 'sat']
 
     for data in data_list[:1]:
-        ret = evaluate(MWMOTE(7, 5, 5, 3, 5, mdl_args=dict(gamma=1)), data)
+        ret = evaluate(MTS(), data)
         print ret
 
 
+def test_MTS(dname):
+    idsdr = DataReader()
+    data = idsdr.read(dname, sep_label=False)
+    mdl = MTS()
+    mdl.fit(data)
+    mdl.predict(data[:, :-1])
+
+
 if __name__ == '__main__':
-    # unit_test()
-    main()
+    test_MTS('isolet')
+    # main()

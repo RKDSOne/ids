@@ -18,48 +18,45 @@ class VisualizeResults(object):
         s.param_list = sorted(map(float, np.unique(
             filter(lambda o: o.find(';') == -1, s.res[1]))))
 
-    def query(s, algo):
-        multi_params = True
-        if s.res[s.res[0] == algo].iloc[0][1].find(';') == -1:
-            multi_params = False
+    def algo_view(s, algo):
+        plt.clf()
+        plt.title(algo)
+        for data in s.data_list:
+            x, y = [], []
+            tmpdf = s.res[np.logical_and(
+                s.res[0] == algo, s.res[2] == data)]
+            for i in range(tmpdf.shape[0]):
+                x.append(s.param_list.index(float(tmpdf.iloc[i][1])))
+                y.append(tmpdf.iloc[i][3]['f1'])
+            x, y = zip(*sorted(zip(x, y), key=lambda o: o[1]))
+            plt.plot(y, label=data)
+        plt.legend()
+        plt.show()
 
-        if multi_params:
-            for cnt, data in enumerate(s.data_list):
-                fig = plt.figure(cnt + 1)
-                plt.clf()
-                x, y = [], []
-                X = np.arange(len(s.param_list))
-                Y = X
-                X, Y = np.meshgrid(X, Y)
-                Z = np.zeros(X.shape)
-                tmpdf = s.res[np.logical_and(
-                    s.res[0] == algo, s.res[2] == data)]
-                for i in range(tmpdf.shape[0]):
-                    x.append(map(lambda o: s.param_list.index(
-                        float(o)), tmpdf.iloc[i][1].split(';')))
-                    y.append(tmpdf.iloc[i][3]['f1'])
-                    Z[x[-1][0]][x[-1][1]] = y[-1]
-                ax = fig.gca(projection='3d')
-                ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
-                                cmap=cm.coolwarm, linewidth=0, antialiased=False)
-                ax.set_xlabel('x')
-                ax.set_ylabel('y')
-                ax.set_zlabel('f1')                
-            plt.show()
-        else:
-            plt.clf()
-            plt.title(algo)
-            for data in s.data_list:
-                x, y = [], []
-                tmpdf = s.res[np.logical_and(
-                    s.res[0] == algo, s.res[2] == data)]
-                for i in range(tmpdf.shape[0]):
-                    x.append(s.param_list.index(float(tmpdf.iloc[i][1])))
-                    y.append(tmpdf.iloc[i][3]['f1'])
-                x, y = zip(*sorted(zip(x, y), key=lambda o: o[1]))
-                plt.plot(y, label=data)
-            plt.legend()
-            plt.show()
+        # if multi_params:
+        #     for cnt, data in enumerate(s.data_list):
+        #         fig = plt.figure(cnt + 1)
+        #         plt.clf()
+        #         x, y = [], []
+        #         X = np.arange(len(s.param_list))
+        #         Y = X
+        #         X, Y = np.meshgrid(X, Y)
+        #         Z = np.zeros(X.shape)
+        #         tmpdf = s.res[np.logical_and(
+        #             s.res[0] == algo, s.res[2] == data)]
+        #         for i in range(tmpdf.shape[0]):
+        #             x.append(map(lambda o: s.param_list.index(
+        #                 float(o)), tmpdf.iloc[i][1].split(';')))
+        #             y.append(tmpdf.iloc[i][3]['f1'])
+        #             Z[x[-1][0]][x[-1][1]] = y[-1]
+        #         ax = fig.gca(projection='3d')
+        #         ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
+        #                         cmap=cm.coolwarm, linewidth=0, antialiased=False)
+        #         ax.set_xlabel('x')
+        #         ax.set_ylabel('y')
+        #         ax.set_zlabel('f1')
+        #     plt.show()
+        # else:
 
 
 if __name__ == '__main__':
