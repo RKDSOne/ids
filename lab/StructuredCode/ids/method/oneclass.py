@@ -44,4 +44,5 @@ class MTS(imalgo):
         reguX = X - s.mu
         if X.ndim == 1:
             return np.dot(np.dot(reguX, s.dis_metric), reguX)
-        return (np.sum(np.dot(reguX, s.dis_metric) * reguX[:, None], axis=1) > 1.0 / s.thre).astype('float')
+        print (np.sum(np.dot(reguX, s.dis_metric) * reguX, axis=1))
+        return (np.sum(np.dot(reguX, s.dis_metric) * reguX, axis=1) > 1.0 / s.thre).astype('float')

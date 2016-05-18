@@ -19,15 +19,15 @@ def analyze_confusion(res):
             tmp = i
         else:
             tmp = tmp + i
-    try:
-        pf['precision'] = 1.0 * tmp[1][1] / (tmp[1][1] + tmp[0][1])
-    except ZeroDivisionError:
-        pf['precision'] = -1
-    pf['recall'] = 1.0 * tmp[1][1] / (tmp[1][1] + tmp[1][0])
-    pf['f1'] = 1.0 * tmp[1][1] / (tmp[1][1] * 2 + tmp[1][0] + tmp[0][1])
-    pf['FP'] = 1.0 * tmp[0][1] / (tmp[0][0] + tmp[0][1])
-    pf['TP'] = 1.0 * tmp[1][1] / (tmp[1][1] + tmp[1][0])
-    return pf
+    # try:
+    #     pf['precision'] = 1.0 * tmp[1][1] / (tmp[1][1] + tmp[0][1])
+    # except ZeroDivisionError:
+    #     pf['precision'] = -1
+    # pf['recall'] = 1.0 * tmp[1][1] / (tmp[1][1] + tmp[1][0])
+    # pf['f1'] = 1.0 * tmp[1][1] / (tmp[1][1] * 2 + tmp[1][0] + tmp[0][1])
+    # pf['FP'] = 1.0 * tmp[0][1] / (tmp[0][0] + tmp[0][1])
+    # pf['TP'] = 1.0 * tmp[1][1] / (tmp[1][1] + tmp[1][0])
+    return tmp.tolist()
 
 
 def foo(mdl, data, idx_set, i):
@@ -130,11 +130,13 @@ def unit_test():
 def test_MTS(dname):
     idsdr = DataReader()
     data = idsdr.read(dname, sep_label=False)
-    mdl = MTS()
+    mdl = MTS(0.08)
     mdl.fit(data)
-    mdl.predict(data[:, :-1])
+    res = mdl.predict(data[mdl.y == mdl.majlab, :-1])
+    print res
+    print '{0} of {1} predicted right'.format(len(res), sum(res))
 
 
 if __name__ == '__main__':
-    test_MTS('isolet')
-    # main()
+    # test_MTS('isolet')
+    main()
