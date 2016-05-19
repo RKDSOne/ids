@@ -10,16 +10,18 @@ from mpl_toolkits.mplot3d import Axes3D
 # TODO: just choose the best result
 # TODO: train parameterized-model for several times and take the average performance
 class VisualizeResults(object):
-
     def __init__(s, res_file):
         res_json = json.load(open(res_file))
+        # from this, res is a pandas.DataFrame with columns [algo, param, dataset, conf_mtr]
         s.res = pandas.DataFrame([i.split(',') + [res_json[i]]
                                   for i in res_json.keys()])
         s.data_list = np.unique(s.res[2])
         s.algos = np.unique(s.res[0])
+        s.param_list = {}
         # TODO: the param_list should not be a global variable, tobefixed.
-        s.param_list = sorted(map(float, np.unique(
-            filter(lambda o: o.find(';') == -1, s.res[1]))))
+        for algo in s.algos:
+            s.param_list[algo] = sorted(
+                map(float, np.unique(filter(lambda o: o.find(';') == -1, s.res[s.res[0] == algo][1]))))
 
     def analyze_fusion(s, fm):
         ret = {}
@@ -38,14 +40,14 @@ class VisualizeResults(object):
             fig = plt.figure(data)
             plt.clf()
             x, y = [], []
-            X = np.arange(len(s.param_list))
+            X = np.arange(len(s.param_list[algo]))
             Y = X
             X, Y = np.meshgrid(X, Y)
             Z = np.zeros(X.shape)
             tmpdf = s.res[np.logical_and(
                 s.res[0] == algo, s.res[2] == data)]
             for i in range(tmpdf.shape[0]):
-                x.append(map(lambda o: s.param_list.index(
+                x.append(map(lambda o: s.param_list[algo].index(
                     float(o)), tmpdf.iloc[i][1].split(';')))
                 y.append(tmpdf.iloc[i][3]['f1'])
                 Z[x[-1][0]][x[-1][1]] = y[-1]
@@ -68,7 +70,7 @@ class VisualizeResults(object):
                 irec = tmpdf.iloc[i]
                 imf = irec[3]
                 iana = s.analyze_fusion(imf)
-                x.append(s.param_list.index(float(irec[1])))
+                x.append(s.param_list[algo].index(float(irec[1])))
                 y.append(iana[metric])
             x, y = zip(*sorted(zip(x, y), key=lambda o: o[0]))
             plt.plot(y, label=data)

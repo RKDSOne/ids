@@ -22,36 +22,45 @@ def analyze_confusion(res):
     return tmp.tolist()
 
 
-def foo(mdl, data, idx_set, i):
-    tr = data[idx_set[i][0]]
-    tst = data[idx_set[i][1]]
-    mdl.fit(tr[:, :-1], tr[:, -1])
-    # build-in sklearn.metrics.confusion_matrix(y_true, y_pred)
-    ans = tst[:, -1]
-    pred = mdl.predict(tst[:, :-1])
-    return confusion_matrix(ans, pred)
-
-
 def evaluate(mdl, dname, folds=5):
+    # `folds` is used for data without train-test separation
     if cache.has_key(dname):
         data = cache[dname]
     else:
         idsdr = DataReader()
-        data = idsdr.read(dname, sep_label=False)
+        data = idsdr.read(dname)
         cache[dname] = data
+
+    has_test = data[0]
+
+    # `res`: a list of confusion matrix
     res = []
     idx_set = []
-    for tr_idx, tst_idx in KFold(data.shape[0], n_folds=folds, shuffle=True):
-        idx_set.append([tr_idx, tst_idx])
-    res = Parallel(n_jobs=folds)(
-        delayed(foo)(mdl, data, idx_set, i) for i in range(folds)[:1])
-    if hasattr(mdl, 'gamma'):
-        param_gamma = mdl.gamma
-    elif hasattr(mdl, 'mdl_args'):
-        param_gamma = mdl.mdl_args["gamma"]
+    if has_test:
+        idx_set =
+
     else:
-        param_gamma = str(mdl.bsvm.gamma) + ';' + str(mdl.vsvm.gamma)
-    return [mdl.__class__.__name__ + ',' + str(param_gamma) + ',' + dname, analyze_confusion(res)]
+
+        for tr_idx, tst_idx in KFold(data.shape[0], n_folds=folds, shuffle=True):
+            idx_set.append([tr_idx, tst_idx])
+        # res = Parallel(n_jobs=folds)(
+        #     delayed(foo)(mdl, data, idx_set, i) for i in range(folds)[:1])
+        for trn_idx, tst_idx in idx_set:
+            trn = data[trn_idx]
+            tst = data[tst_idx]
+            mdl.fit(tr[:, :-1], tr[:, -1])
+            # build-in sklearn.metrics.confusion_matrix(y_true, y_pred)
+            ans = tst[:, -1]
+            pred = mdl.predict(tst[:, :-1])
+            res.append(confusion_matrix(ans, pred))
+
+        if hasattr(mdl, 'gamma'):
+            param_gamma = mdl.gamma
+        elif hasattr(mdl, 'mdl_args'):
+            param_gamma = mdl.mdl_args["gamma"]
+        else:
+            param_gamma = str(mdl.bsvm.gamma) + ';' + str(mdl.vsvm.gamma)
+        return [mdl.__class__.__name__ + ',' + str(param_gamma) + ',' + dname, analyze_confusion(res)]
 
 
 def main():
