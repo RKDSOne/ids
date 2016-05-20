@@ -16,7 +16,7 @@ class DataReader:
                 return '/{0}/{1}.data'.format(dname[:dname.find('-')], dname)
             return '/{0}/{0}.data'.format(dname)
 
-        fpath = os.path.join(s.conf["dpath"], filepath(dataset))
+        fpath = s.conf["dpath"] + filepath(dataset)
         has_test = False
         tst_fpath = fpath[:-5] + '-test' + fpath[-5:]
         if os.path.exists(tst_fpath):
@@ -30,7 +30,8 @@ class DataReader:
                 df = pd.read_csv(tst_fpath)
                 tstX = np.array(df.ix[:, :-1]).astype('float64')
                 tsty = np.array(map(lambda o: float(o[1:]), df.ix[:, -1])).astype('float64')
-            return has_test, X, y, tstX, tsty
+                return has_test, X, y, tstX, tsty
+            return has_test, X, y
         else:
             df = pd.read_csv(fpath)
             dat = np.array(df)
@@ -39,4 +40,5 @@ class DataReader:
                 df = pd.read_csv(tst_fpath)
                 tst_dat = np.array(df)
                 tst_dat[:, -1] = np.array(map(lambda o: float(o[1:]), tst_dat[:, -1]))
-            return has_test, dat.astype('float64'), tst_dat.astype('float64')
+                return has_test, dat.astype('float64'), tst_dat.astype('float64')
+            return has_test, dat.astype('float64')

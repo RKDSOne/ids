@@ -24,6 +24,7 @@ def analyze_confusion(res):
 
 def evaluate(mdl, dname, folds=5):
     # `folds` is used for data without train-test separation
+    # `data` is a tuple with
     if cache.has_key(dname):
         data = cache[dname]
     else:
@@ -35,32 +36,34 @@ def evaluate(mdl, dname, folds=5):
 
     # `res`: a list of confusion matrix
     res = []
+
+    # idx_set contains (train_index, test_index) tuples with `folds` numbers.
+    # So, when the dataset already has test data that don't need cross validation,
+    # the idx_set simply has one tuple corrsponding to train and test data stacked in `data`
     idx_set = []
     if has_test:
-        idx_set =
-
+        trn_size, tst_size = data[1].shape[0], data[3].shape[0]
+        data = data[0], np.vstack((data[1], data[3])), np.hstack(data[2], data[4])
+        idx_set.append([range(0, trn_size), range(trn_size, trn_size + tst_size)])
     else:
-
-        for tr_idx, tst_idx in KFold(data.shape[0], n_folds=folds, shuffle=True):
+        for tr_idx, tst_idx in KFold(data[1].shape[0], n_folds=folds, shuffle=True):
             idx_set.append([tr_idx, tst_idx])
-        # res = Parallel(n_jobs=folds)(
-        #     delayed(foo)(mdl, data, idx_set, i) for i in range(folds)[:1])
-        for trn_idx, tst_idx in idx_set:
-            trn = data[trn_idx]
-            tst = data[tst_idx]
-            mdl.fit(tr[:, :-1], tr[:, -1])
-            # build-in sklearn.metrics.confusion_matrix(y_true, y_pred)
-            ans = tst[:, -1]
-            pred = mdl.predict(tst[:, :-1])
-            res.append(confusion_matrix(ans, pred))
+    for trn_idx, tst_idx in idx_set:
+        trnX, trny = data[1][trn_idx], data[2][trn_idx]
+        tstX, tsty = data[1][tst_idx], data[2][tst_idx]
+        mdl.fit(trnX, trny)
+        # build-in sklearn.metrics.confusion_matrix(y_true, y_pred)
+        ans = tsty
+        pred = mdl.predict(tstX)
+        res.append(confusion_matrix(ans, pred))
 
-        if hasattr(mdl, 'gamma'):
-            param_gamma = mdl.gamma
-        elif hasattr(mdl, 'mdl_args'):
-            param_gamma = mdl.mdl_args["gamma"]
-        else:
-            param_gamma = str(mdl.bsvm.gamma) + ';' + str(mdl.vsvm.gamma)
-        return [mdl.__class__.__name__ + ',' + str(param_gamma) + ',' + dname, analyze_confusion(res)]
+    if hasattr(mdl, 'gamma'):
+        param_gamma = mdl.gamma
+    elif hasattr(mdl, 'mdl_args'):
+        param_gamma = mdl.mdl_args["gamma"]
+    else:
+        param_gamma = str(mdl.bsvm.gamma) + ';' + str(mdl.vsvm.gamma)
+    return [mdl.__class__.__name__ + ',' + str(param_gamma) + ',' + dname, analyze_confusion(res)]
 
 
 def main():
@@ -68,7 +71,7 @@ def main():
     # thread_method = 'multiprocessing'
     thread_method = 'threading'
     data_list = ['abalone', 'isolet', 'letter',
-        'mf-zer', 'mf-mor', 'pima', 'sat']
+                 'mf-zer', 'mf-mor', 'pima', 'sat']
     gamma_list = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 2, 4, 8, 16, 32]
 
     all_res = {}
@@ -127,24 +130,25 @@ def main():
 
 
 def unit_test():
-    data_list=['abalone', 'isolet', 'letter',
+    data_list = ['abalone', 'isolet', 'letter',
                  'mf-zer', 'mf-mor', 'pima', 'sat']
 
-    for data in data_list[:1]:
-        ret=evaluate(MTS(), data)
+    for data in data_list[2:3]:
+        # ret = evaluate(MWMOTE(7, 5, 5, 3, 5, mdl_args=dict(gamma=32)), data)
+        ret = evaluate(SMOTE(5, 3, mdl_args=dict(gamma=32)), data)
         print ret
 
 
 def test_MTS(dname):
-    idsdr=DataReader()
-    data=idsdr.read(dname, sep_label=False)
-    mdl=MTS(0.08)
+    idsdr = DataReader()
+    data = idsdr.read(dname, sep_label=False)
+    mdl = MTS(0.08)
     mdl.fit(data)
-    res=mdl.predict(data[mdl.y == mdl.majlab, :-1])
+    res = mdl.predict(data[mdl.y == mdl.majlab, :-1])
     print res
     print '{0} of {1} predicted right'.format(len(res), sum(res))
 
 
 if __name__ == '__main__':
-    # test_MTS('isolet')
-    main()
+    unit_test()
+    # main()

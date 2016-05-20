@@ -34,13 +34,9 @@ class imalgo(object):
           - a dict with "X" and "y" as keys, and numpy.ndarrays as values.
         the local data set named "data_name" can be found in the path: "/conf[u'dpath']/data_name/data_name.data".
         """
-        if isinstance(data, str):
-            idsdr = DataReader()
-            s.X, s.y = idsdr.read(data)
-            s.data = np.hstack((s.X, s.y))
-        else:
-            s.data = data
-            s.X, s.y = np.array(data[:, :-1]), np.array(data[:, -1])
+        s.data = data
+
+        s.X, s.y = np.array(data[:, :-1]), np.array(data[:, -1])
 
     # to help get minority label and majority label. Also the imbalanced ratio is calculated in `s.imr`.
     def identify(s):
