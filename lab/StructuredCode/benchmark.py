@@ -39,12 +39,15 @@ def evaluate(mdl, dname, folds=5):
 
     # idx_set contains (train_index, test_index) tuples with `folds` numbers.
     # So, when the dataset already has test data that don't need cross validation,
-    # the idx_set simply has one tuple corrsponding to train and test data stacked in `data`
+    # the idx_set simply has one tuple corrsponding to train and test data
+    # stacked in `data`
     idx_set = []
     if has_test:
         trn_size, tst_size = data[1].shape[0], data[3].shape[0]
-        data = data[0], np.vstack((data[1], data[3])), np.hstack(data[2], data[4])
-        idx_set.append([range(0, trn_size), range(trn_size, trn_size + tst_size)])
+        data = data[0], np.vstack(
+            (data[1], data[3])), np.hstack((data[2], data[4]))
+        idx_set.append([range(0, trn_size), range(
+            trn_size, trn_size + tst_size)])
     else:
         for tr_idx, tst_idx in KFold(data[1].shape[0], n_folds=folds, shuffle=True):
             idx_set.append([tr_idx, tst_idx])
@@ -66,13 +69,12 @@ def evaluate(mdl, dname, folds=5):
     return [mdl.__class__.__name__ + ',' + str(param_gamma) + ',' + dname, analyze_confusion(res)]
 
 
-def main():
+def main(thread_method = 'threading', paral_jobs=-1):
     paral_jobs = -1
-    # thread_method = 'multiprocessing'
-    thread_method = 'threading'
-    data_list = ['abalone', 'isolet', 'letter',
+    data_list = ['uair', 'abalone', 'isolet', 'letter',
                  'mf-zer', 'mf-mor', 'pima', 'sat']
-    gamma_list = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 2, 4, 8, 16, 32]
+    gamma_list = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4,
+                  1e-3, 1e-2, 1e-1, 1, 2, 4, 8, 16, 32]
 
     all_res = {}
     for data in data_list:
@@ -150,5 +152,15 @@ def test_MTS(dname):
 
 
 if __name__ == '__main__':
-    unit_test()
-    # main()
+    if len(sys.argv) == 1:
+        main()
+    elif len(sys.argv) == 2:
+        if sys.argv[1] == '-test':
+            unit_test()
+        elif sys.argv[1]=='-cpu':
+            main(thread_method='multiprocessing')
+    elif len(sys.argv)==3:
+        if sys.argv[1]=='-thre':
+            main(paral_jobs=int(sys.argv[2]))
+        elif sys.argv[1]=='-cpu':
+            main(thread_method='multiprocessing', paral_jobs=int(sys.argv[2]))

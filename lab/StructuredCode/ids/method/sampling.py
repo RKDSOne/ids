@@ -2,6 +2,7 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.svm import SVC
 from base import *
 import time as pytime
+import sys
 
 
 class SMOTE(imalgo):
@@ -132,6 +133,7 @@ class MWMOTE(imalgo):
         ret = np.hstack((np.vstack((minoX, generated, majX)),
                          np.array([s.minolab] * (minoX.shape[0] + s.N) + [s.majlab] * majX.shape[0])[:, None]))
         np.random.shuffle(ret)
+        
         return ret
 
     @imalgo.datazip_decorator

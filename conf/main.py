@@ -41,6 +41,10 @@ class foo(QWidget):
             for fpath in s.conf["confpaths"]:
                 full_path = os.path.join(s.conf["path"], fpath, 'conf.json')
                 json.dump(s.conf, open(full_path, 'w'))
+                print 'ok conf.json sent to {0}'.format(full_path)
+                sys.stdout.flush()
+            print '\nALL OUT'
+            sys.stdout.flush()
 
         def fillConf():
             path_txt.setText(s.conf["path"])

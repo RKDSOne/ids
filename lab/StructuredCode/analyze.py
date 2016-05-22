@@ -8,11 +8,14 @@ from mpl_toolkits.mplot3d import Axes3D
 
 
 # TODO: just choose the best result
-# TODO: train parameterized-model for several times and take the average performance
+# TODO: train parameterized-model for several times and take the average
+# performance
 class VisualizeResults(object):
+
     def __init__(s, res_file):
         res_json = json.load(open(res_file))
-        # from this, res is a pandas.DataFrame with columns [algo, param, dataset, conf_mtr]
+        # from this, res is a pandas.DataFrame with columns [algo, param,
+        # dataset, conf_mtr]
         s.res = pandas.DataFrame([i.split(',') + [res_json[i]]
                                   for i in res_json.keys()])
         s.data_list = np.unique(s.res[2])
