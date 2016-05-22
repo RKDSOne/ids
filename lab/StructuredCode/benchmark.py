@@ -69,8 +69,7 @@ def evaluate(mdl, dname, folds=5):
     return [mdl.__class__.__name__ + ',' + str(param_gamma) + ',' + dname, analyze_confusion(res)]
 
 
-def main(thread_method = 'threading', paral_jobs=-1):
-    paral_jobs = -1
+def main(thread_method='threading', paral_jobs=-1):
     data_list = ['uair', 'abalone', 'isolet', 'letter',
                  'mf-zer', 'mf-mor', 'pima', 'sat']
     gamma_list = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4,
@@ -157,10 +156,10 @@ if __name__ == '__main__':
     elif len(sys.argv) == 2:
         if sys.argv[1] == '-test':
             unit_test()
-        elif sys.argv[1]=='-cpu':
+        elif sys.argv[1] == '-cpu':
             main(thread_method='multiprocessing')
-    elif len(sys.argv)==3:
-        if sys.argv[1]=='-thre':
+    elif len(sys.argv) == 3:
+        if sys.argv[1] == '-thre':
             main(paral_jobs=int(sys.argv[2]))
-        elif sys.argv[1]=='-cpu':
+        elif sys.argv[1] == '-cpu':
             main(thread_method='multiprocessing', paral_jobs=int(sys.argv[2]))
