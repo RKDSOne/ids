@@ -64,7 +64,9 @@ def evaluate(mdl, dname, folds=5):
         param_gamma = mdl.gamma
     elif hasattr(mdl, 'mdl_args'):
         param_gamma = mdl.mdl_args["gamma"]
-    else:
+    elif isinstance(mdl, EasyEnsemble):
+        param_gamma = -1
+    elif isinstance(mdl, HKME):
         param_gamma = str(mdl.bsvm.gamma) + ';' + str(mdl.vsvm.gamma)
     return [mdl.__class__.__name__ + ',' + str(param_gamma) + ',' + dname, analyze_confusion(res)]
 
@@ -79,10 +81,9 @@ def main(thread_method='threading', paral_jobs=-1):
     for data in data_list:
         # parallel experiments.
 
-        ret = Parallel(n_jobs=paral_jobs, backend=thread_method)(
-            delayed(evaluate)(EasyEnsemble(subimba=1, mdl_args=dict(gamma=gamma)), data) for gamma in gamma_list)
-        for k, v in ret:
-            all_res[k] = v
+        ret = evaluate(EasyEnsemble(), data)
+        k, v = ret
+        all_res[k] = v
         print 'ok EasyEnsemble'
         sys.stdout.flush()
 
@@ -134,9 +135,9 @@ def unit_test():
     data_list = ['abalone', 'isolet', 'letter',
                  'mf-zer', 'mf-mor', 'pima', 'sat']
 
-    for data in data_list[2:3]:
+    for data in data_list[-2:-1]:
         # ret = evaluate(MWMOTE(7, 5, 5, 3, 5, mdl_args=dict(gamma=32)), data)
-        ret = evaluate(SMOTE(5, 3, mdl_args=dict(gamma=32)), data)
+        ret = evaluate(EasyEnsemble(), data)
         print ret
 
 
@@ -152,7 +153,8 @@ def test_MTS(dname):
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
-        main()
+        unit_test()
+        # main()
     elif len(sys.argv) == 2:
         if sys.argv[1] == '-test':
             unit_test()
