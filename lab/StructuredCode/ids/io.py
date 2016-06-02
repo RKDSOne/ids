@@ -7,8 +7,8 @@ import os
 class DataReader:
     """A cache for reading data"""
 
-    def __init__(s):
-        s.conf = json.load(open("conf.json"))
+    def __init__(s, confpath="conf.json"):
+        s.conf = json.load(open(confpath))
 
     def read(s, dataset, sep_label=True):
         def filepath(dname):

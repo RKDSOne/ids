@@ -153,8 +153,7 @@ def test_MTS(dname):
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:
-        unit_test()
-        # main()
+        main()
     elif len(sys.argv) == 2:
         if sys.argv[1] == '-test':
             unit_test()

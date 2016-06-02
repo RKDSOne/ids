@@ -1,14 +1,36 @@
 import os
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
-
 from ids import io as idsdr
+from base import *
+
+
+class Discription(object):
+    """Data Description module of Imbalanced Learning Framework"""
+
+    def __init__(s):
+        super(Discription, s).__init__()
+
+    @imalgo.datazip_decorator
+    def fit(s, data):
+        s.load_data(data)
+        s.identify()
+        s.nnall = NearestNeighbors(n_neighbors=8, n_jobs=-1)
+        s.nnall.fit(s.X)
+
+    def describe(s, data):
+        print s.imr
+        minoN = sum(s.y == s.minolab)
+        majN = sum(s.y == s.majlab)
+        N = minoN + majN
+        minoNei = s.nnall.kneighbors()[s.y == s.minolab][:, 0]
+        print sum(minoNei) * 1.0 / N
 
 
 class NNScope:
+
     def get_minolab(self):
         tmp = pd.Series(self.y)
         tmp = tmp.value_counts()
@@ -34,7 +56,8 @@ class NNScope:
         dis_all, _ = self.nn.kneighbors()
         dis_all = dis_all[self.y == self.minolab]
         dis_maj, _ = self.nn_maj.kneighbors(self.X[self.y == self.minolab])
-        self.WBNR = np.sqrt(np.mean(dis_all ** 2, axis=1) / np.mean(dis_maj ** 2, axis=1))
+        self.WBNR = np.sqrt(np.mean(dis_all ** 2, axis=1) /
+                            np.mean(dis_maj ** 2, axis=1))
 
     def show_ratio_distr(self):
         plt.hist(self.WBNR, bins=20)

@@ -1,4 +1,4 @@
-from ids.io import *
+from ids.IO import *
 
 
 class imalgo(object):
@@ -6,6 +6,8 @@ class imalgo(object):
     `imalgo` is the base class for Imbalanced Learning Algorithms, integrated with `load_data` and `identify`.
     """
 
+    # utilize the decorated functions to accept both (Features, Labels) parama
+    # tuple, or a single data frame
     @staticmethod
     def datazip_decorator(func):
         def wrapper(s, *data):
@@ -38,7 +40,8 @@ class imalgo(object):
 
         s.X, s.y = np.array(data[:, :-1]), np.array(data[:, -1])
 
-    # to help get minority label and majority label. Also the imbalanced ratio is calculated in `s.imr`.
+    # to help get minority label and majority label. Also the imbalanced ratio
+    # is calculated in `s.imr`.
     def identify(s):
         labs, counts = np.unique(s.data[:, -1], return_counts=True)
         if len(labs) != 2:
