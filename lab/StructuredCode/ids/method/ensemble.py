@@ -44,28 +44,6 @@ class EasyEnsemble(imalgo):
             mdl = AdaBoostClassifier()
             mdl.fit(tX, ty)
             s.mdls.append(mdl)
-        """
-        submajN = int(minoN * s.subimba)
-        buckets = [majX[i * submajN:min(majN, (i + 1) * submajN)]
-                   for i in xrange((majN - 1) / submajN + 1)]
-        # The last bucket can be very small, causing imbalance.
-        # So, for last packet with
-        #   - less than 50% size of minority, it is merged to the before-the-last bucket, while
-        #   - reserve this bucket otherwise.
-        if buckets[-1].shape[0] < 0.5:
-            tmp = buckets.pop(-1)
-            buckets[-2] = np.vstack((buckets[-1], tmp))
-
-        for submajX in buckets:
-            tmp = np.hstack(
-                (np.vstack((submajX, minoX)), np.array([s.majlab] * submajX.shape[0] + [s.minolab] * minoN)[:, None]))
-            np.random.shuffle(tmp)
-            tX = tmp[:, :-1]
-            ty = tmp[:, -1]
-            mdl = SVC(**s.mdl_args)
-            mdl.fit(tX, ty)
-            s.mdls.append(mdl)
-        """
 
     def predict(s, X):
         res = None

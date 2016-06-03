@@ -1,12 +1,13 @@
 from ids.method.ensemble import *
 from ids.method.oneclass import *
 from ids.method.sampling import *
-from ids.io import DataReader
+from ids.IO import DataReader
 from sklearn.cross_validation import KFold
 from sklearn.metrics import confusion_matrix
 from joblib import Parallel, delayed
 import json
 import sys
+from  sklearn.ensemble import AdaBoostClassifier
 
 cache = {}
 
@@ -60,14 +61,10 @@ def evaluate(mdl, dname, folds=5):
         pred = mdl.predict(tstX)
         res.append(confusion_matrix(ans, pred))
 
-    if hasattr(mdl, 'gamma'):
-        param_gamma = mdl.gamma
-    elif hasattr(mdl, 'mdl_args'):
+    if isinstance(mdl, vSVM):
         param_gamma = mdl.mdl_args["gamma"]
-    elif isinstance(mdl, EasyEnsemble):
+    else:
         param_gamma = -1
-    elif isinstance(mdl, HKME):
-        param_gamma = str(mdl.bsvm.gamma) + ';' + str(mdl.vsvm.gamma)
     return [mdl.__class__.__name__ + ',' + str(param_gamma) + ',' + dname, analyze_confusion(res)]
 
 
@@ -87,20 +84,11 @@ def main(thread_method='threading', paral_jobs=-1):
         print 'ok EasyEnsemble'
         sys.stdout.flush()
 
-        ret = Parallel(n_jobs=paral_jobs, backend=thread_method)(
-            delayed(evaluate)(SVC(gamma=gamma), data) for gamma in gamma_list)
-        for k, v in ret:
-            all_res[k] = v
-        print 'ok SVC'
+        ret = evaluate(AdaBoostClassifier(), data)
+        k, v = ret
+        all_res[k] = v
+        print 'ok Boosting'
         sys.stdout.flush()
-
-        # ret = Parallel(n_jobs=paral_jobs, backend=thread_method)(
-        #     delayed(evaluate)(HKME(svc_args=dict(gamma=gamma_svc), svdd_args=dict(gamma=gamma_svdd)), data) for
-        #     gamma_svc in gamma_list for gamma_svdd in gamma_list)
-        # for k, v in ret:
-        #     all_res[k] = v
-        # print 'ok HKME'
-        # sys.stdout.flush()
 
         ret = Parallel(n_jobs=paral_jobs, backend=thread_method)(
             delayed(evaluate)(vSVM(mdl_args=dict(gamma=gamma)), data) for gamma in gamma_list)
@@ -109,17 +97,15 @@ def main(thread_method='threading', paral_jobs=-1):
         print 'ok vSVM'
         sys.stdout.flush()
 
-        ret = Parallel(n_jobs=paral_jobs, backend=thread_method)(
-            delayed(evaluate)(SMOTE(5, 3, mdl_args=dict(gamma=gamma)), data) for gamma in gamma_list)
-        for k, v in ret:
-            all_res[k] = v
+        ret = evaluate(SMOTE(5, 3), data)
+        k, v = ret
+        all_res[k] = v
         print 'ok SMOTE'
         sys.stdout.flush()
 
-        ret = Parallel(n_jobs=paral_jobs, backend=thread_method)(
-            delayed(evaluate)(MWMOTE(7, 5, 5, 3, 5, mdl_args=dict(gamma=gamma)), data) for gamma in gamma_list)
-        for k, v in ret:
-            all_res[k] = v
+        ret =evaluate(MWMOTE(7, 5, 5, 3, 5), data)
+        k, v = ret
+        all_res[k] = v
         print 'ok MWMOTE'
         sys.stdout.flush()
 
@@ -152,6 +138,7 @@ def test_MTS(dname):
 
 
 if __name__ == '__main__':
+    t1=pytime.clock()
     if len(sys.argv) == 1:
         main()
     elif len(sys.argv) == 2:
@@ -164,3 +151,4 @@ if __name__ == '__main__':
             main(paral_jobs=int(sys.argv[2]))
         elif sys.argv[1] == '-cpu':
             main(thread_method='multiprocessing', paral_jobs=int(sys.argv[2]))
+    print 'Time Cost: {0}'.format(pytime.clock()-t1)

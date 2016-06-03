@@ -3,14 +3,13 @@ from sklearn.svm import SVC
 from base import *
 import time as pytime
 import sys
-
+from sklearn.ensemble import AdaBoostClassifier
 
 class SMOTE(imalgo):
-    def __init__(s, k, rate, mdl_args={}):
+    def __init__(s, k, rate):
         super(SMOTE, s).__init__()
         s.k = k
         s.rate = rate
-        s.mdl_args = mdl_args
         s.sampled_mdl = None
 
     def sample(s):
@@ -56,7 +55,7 @@ class SMOTE(imalgo):
         s.load_data(data)
         s.identify()
         # t1 = toc(t1)
-        s.sampled_mdl = SVC(**s.mdl_args)
+        s.sampled_mdl = AdaBoostClassifier()
         sampled_data = s.sample()
         # t1 = toc(t1)
         s.sampled_mdl.fit(sampled_data[:, :-1], sampled_data[:, -1])
@@ -68,14 +67,13 @@ class SMOTE(imalgo):
 
 
 class MWMOTE(imalgo):
-    def __init__(s, k1, k2, k3, rate, Cfth, mdl_args={}):
+    def __init__(s, k1, k2, k3, rate, Cfth):
         super(MWMOTE, s).__init__()
         s.k1 = k1
         s.k2 = k2
         s.k3 = k3
         s.rate = rate
         s.Cfth = Cfth
-        s.mdl_args = mdl_args
         s.sampled_mdl = None
         s.N = -1
 
@@ -147,7 +145,7 @@ class MWMOTE(imalgo):
         s.load_data(data)
         s.identify()
         # t1 = toc(t1)
-        s.sampled_mdl = SVC(**s.mdl_args)
+        s.sampled_mdl = AdaBoostClassifier()
         s.N = int(s.rate * sum(s.y == s.minolab))
         sampled_data = s.sample()
         # t1 = toc(t1)
