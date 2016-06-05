@@ -5,13 +5,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
+import sys
 
 
 # TODO: just choose the best result
 # TODO: train parameterized-model for several times and take the average
-# performance
-class VisualizeResults(object):
-
+class PlotView(object):
     def __init__(s, res_file):
         res_json = json.load(open(res_file))
         # from this, res is a pandas.DataFrame with columns [algo, param,
@@ -81,10 +80,52 @@ class VisualizeResults(object):
         plt.show()
 
 
+class TableView(object):
+    def __init__(s, res_file):
+        res_json = json.load(open(res_file))
+        # from this, res is a pandas.DataFrame with columns [algo, param,
+        # dataset, conf_mtr]
+        s.res = pandas.DataFrame([i.split(',') + [res_json[i]]
+                                  for i in res_json.keys()])
+        s.data_list = np.unique(s.res[2])
+        s.algos = np.unique(s.res[0])
+
+    def analyze_fusion(s, fm):
+        ret = {}
+        try:
+            ret['precision'] = 1.0 * fm[1][1] / (fm[1][1] + fm[0][1])
+        except ZeroDivisionError:
+            ret['precision'] = -1
+        ret['recall'] = 1.0 * fm[1][1] / (fm[1][1] + fm[1][0])
+        ret['f1'] = 2.0 * fm[1][1] / (fm[1][1] * 2 + fm[1][0] + fm[0][1])
+        ret['FP'] = 1.0 * fm[0][1] / (fm[0][0] + fm[0][1])
+        ret['TP'] = 1.0 * fm[1][1] / (fm[1][1] + fm[1][0])
+        return ret
+
+    def show(s):
+        def foo(fm):
+            return s.analyze_fusion(fm)['f1']
+
+        s.res[3] = pandas.Series([foo(i) for i in s.res[3]])
+        tabel_res = np.zeros((len(s.data_list), len(s.algos)))
+        for i, data in enumerate(s.data_list):
+            for j, algo in enumerate(s.algos):
+                tabel_res[i][j] = max(s.res[(s.res[0] == algo) & (s.res[2] == data)][3])
+        tabel_res = pandas.DataFrame(tabel_res)
+        tabel_res.columns = s.algos
+        print tabel_res
+        print ',\n'.join(['algos'] + list(s.data_list)) + ','
+        return tabel_res
+
+
 if __name__ == '__main__':
     conf = json.load(open('conf.json'))
-    a = VisualizeResults(os.path.join(
-        conf['path'], 'lab/results', 'res2.json'))
-    for cnt, i in enumerate(a.algos):
-        plt.figure(cnt + 1)
-        a.algo_view(i)
+
+    if len(sys.argv) == 1:
+        resnum = 7
+    else:
+        resnum = int(sys.args[1])
+    res = TableView(os.path.join(
+        conf['path'], 'lab/results', 'res{0}.json'.format(resnum)))
+    tabel = res.show()
+    tabel.to_csv(os.path.join(conf['path'], 'lab/results', 'temp.csv'), index=False)
