@@ -7,7 +7,7 @@ from sklearn.metrics import confusion_matrix
 from joblib import Parallel, delayed
 import json
 import sys
-from  sklearn.ensemble import AdaBoostClassifier
+from sklearn.ensemble import AdaBoostClassifier
 
 cache = {}
 
@@ -69,13 +69,24 @@ def evaluate(mdl, dname, folds=5):
 
 
 def main(thread_method='threading', paral_jobs=-1):
-    data_list = ['uair', 'abalone', 'isolet', 'letter',
-                 'mf-zer', 'mf-mor', 'pima', 'sat']
+    def cnt_resfiles(folder_path):
+        # many `res{0}.json` in a folder, {0} is an integer.
+        # the task is to find largest such integer.
+        tmp = os.listdir(folder_path)
+        ret = -1
+        for fname in tmp:
+            if fname[:3] == 'res' and fname[-5:] == '.json':
+                ret = max(ret, int(fname[3:-5]))
+        return ret
+
+    data_list = ['abalone', 'haber', 'iono', 'isolet',
+                 'letter', 'mf-mor', 'mf-zer', 'pima', 'sat', 'uair']
     gamma_list = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4,
                   1e-3, 1e-2, 1e-1, 1, 2, 4, 8, 16, 32]
 
     all_res = {}
     for data in data_list:
+        print '\n\t{0} going'.format(data)
         # parallel experiments.
 
         ret = evaluate(EasyEnsemble(), data)
@@ -103,7 +114,7 @@ def main(thread_method='threading', paral_jobs=-1):
         print 'ok SMOTE'
         sys.stdout.flush()
 
-        ret =evaluate(MWMOTE(7, 5, 5, 3, 5), data)
+        ret = evaluate(MWMOTE(7, 5, 5, 3, 5), data)
         k, v = ret
         all_res[k] = v
         print 'ok MWMOTE'
@@ -111,9 +122,9 @@ def main(thread_method='threading', paral_jobs=-1):
 
     conf = json.load(open('conf.json'))
     folder_path = os.path.join(conf['path'], 'lab/results')
-    files_cnt = len(os.listdir(folder_path))
+    res_id = cnt_resfiles(folder_path)
     file_path = os.path.join(
-        conf['path'], 'lab/results', 'res{0}.json'.format(files_cnt + 1))
+        conf['path'], 'lab/results', 'res{0}.json'.format(res_id + 1))
     json.dump(all_res, open(os.path.join(file_path), 'w'))
 
 
@@ -136,9 +147,17 @@ def test_MTS(dname):
     print res
     print '{0} of {1} predicted right'.format(len(res), sum(res))
 
+"""
+To take the average results of all algorithms, run this PowerShell script:
 
+for($i=1; $i -le 5; $i++)
+{
+    echo "Rep $i"
+    python benchmark.py
+}
+"""
 if __name__ == '__main__':
-    t1=pytime.clock()
+    t1 = pytime.clock()
     if len(sys.argv) == 1:
         main()
     elif len(sys.argv) == 2:
@@ -151,4 +170,4 @@ if __name__ == '__main__':
             main(paral_jobs=int(sys.argv[2]))
         elif sys.argv[1] == '-cpu':
             main(thread_method='multiprocessing', paral_jobs=int(sys.argv[2]))
-    print 'Time Cost: {0}'.format(pytime.clock()-t1)
+    print 'Time Cost: {0}'.format(pytime.clock() - t1)

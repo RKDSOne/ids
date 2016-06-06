@@ -11,6 +11,7 @@ import sys
 # TODO: just choose the best result
 # TODO: train parameterized-model for several times and take the average
 class PlotView(object):
+
     def __init__(s, res_file):
         res_json = json.load(open(res_file))
         # from this, res is a pandas.DataFrame with columns [algo, param,
@@ -81,14 +82,17 @@ class PlotView(object):
 
 
 class TableView(object):
-    def __init__(s, res_file):
-        res_json = json.load(open(res_file))
-        # from this, res is a pandas.DataFrame with columns [algo, param,
-        # dataset, conf_mtr]
-        s.res = pandas.DataFrame([i.split(',') + [res_json[i]]
-                                  for i in res_json.keys()])
-        s.data_list = np.unique(s.res[2])
-        s.algos = np.unique(s.res[0])
+
+    def __init__(s, res_file_list):
+        s.res = []
+        for res_file in res_file_list:
+            res_json = json.load(open(res_file))
+            # from this, res is a pandas.DataFrame with columns [algo, param,
+            # dataset, conf_mtr]
+            s.res.append(pandas.DataFrame(
+                [i.split(',') + [res_json[i]] for i in res_json.keys()]))
+        s.data_list = np.unique(s.res[0][2])
+        s.algos = np.unique(s.res[0][0])
 
     def analyze_fusion(s, fm):
         ret = {}
@@ -106,15 +110,21 @@ class TableView(object):
         def foo(fm):
             return s.analyze_fusion(fm)['f1']
 
-        s.res[3] = pandas.Series([foo(i) for i in s.res[3]])
-        tabel_res = np.zeros((len(s.data_list), len(s.algos)))
-        for i, data in enumerate(s.data_list):
-            for j, algo in enumerate(s.algos):
-                tabel_res[i][j] = max(s.res[(s.res[0] == algo) & (s.res[2] == data)][3])
+        for k in xrange(len(s.res)):
+            s.res[k][3] = pandas.Series([foo(i) for i in s.res[k][3]])
+        tabel_res = np.zeros((len(s.res), len(s.data_list), len(s.algos)))
+        for k in xrange(len(s.res)):
+            for i, data in enumerate(s.data_list):
+                for j, algo in enumerate(s.algos):
+                    tabel_res[k][i][j] = max(
+                        s.res[k][(s.res[k][0] == algo) & (s.res[k][2] == data)][3])
+        tabel_res = np.mean(tabel_res, axis=0)
         tabel_res = pandas.DataFrame(tabel_res)
         tabel_res.columns = s.algos
+        tabel_res['Dataset'] = s.data_list
+        cols = tabel_res.columns
+        tabel_res = tabel_res[['Dataset'] + s.algos.tolist()]
         print tabel_res
-        print ',\n'.join(['algos'] + list(s.data_list)) + ','
         return tabel_res
 
 
@@ -128,4 +138,5 @@ if __name__ == '__main__':
     res = TableView(os.path.join(
         conf['path'], 'lab/results', 'res{0}.json'.format(resnum)))
     tabel = res.show()
-    tabel.to_csv(os.path.join(conf['path'], 'lab/results', 'temp.csv'), index=False)
+    tabel.to_csv(os.path.join(
+        conf['path'], 'lab/results', 'temp.csv'), index=False)
