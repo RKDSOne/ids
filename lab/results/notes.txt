@@ -1,0 +1,6 @@
+1-6 are used for plot visualization
+7 is a single case of Adaboost Algorithm
+
+From 8:
+8-12    5 reps for all datasets
+13-17   5 reps for data `sat20`, sampled from `sat` with imbalance rate 20:1

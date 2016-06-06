@@ -6,12 +6,12 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 import sys
+import re
 
 
 # TODO: just choose the best result
 # TODO: train parameterized-model for several times and take the average
 class PlotView(object):
-
     def __init__(s, res_file):
         res_json = json.load(open(res_file))
         # from this, res is a pandas.DataFrame with columns [algo, param,
@@ -82,7 +82,6 @@ class PlotView(object):
 
 
 class TableView(object):
-
     def __init__(s, res_file_list):
         s.res = []
         for res_file in res_file_list:
@@ -130,13 +129,9 @@ class TableView(object):
 
 if __name__ == '__main__':
     conf = json.load(open('conf.json'))
-
-    if len(sys.argv) == 1:
-        resnum = 7
-    else:
-        resnum = int(sys.args[1])
-    res = TableView(os.path.join(
-        conf['path'], 'lab/results', 'res{0}.json'.format(resnum)))
+    st, ed = int(sys.argv[1]), int(sys.argv[2])
+    file_path_constructor  = lambda o: os.path.join(conf['path'], 'lab/results', 'res{0}.json'.format(o))
+    res = TableView([file_path_constructor(i) for i in xrange(st, ed)])
     tabel = res.show()
     tabel.to_csv(os.path.join(
         conf['path'], 'lab/results', 'temp.csv'), index=False)

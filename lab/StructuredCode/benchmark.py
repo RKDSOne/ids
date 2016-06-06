@@ -79,8 +79,9 @@ def main(thread_method='threading', paral_jobs=-1):
                 ret = max(ret, int(fname[3:-5]))
         return ret
 
-    data_list = ['abalone', 'haber', 'iono', 'isolet',
-                 'letter', 'mf-mor', 'mf-zer', 'pima', 'sat', 'uair']
+    # data_list = ['abalone', 'haber', 'iono', 'isolet',
+    #             'letter', 'mf-mor', 'mf-zer', 'pima', 'sat', 'uair']
+    data_list = ['sat20']
     gamma_list = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4,
                   1e-3, 1e-2, 1e-1, 1, 2, 4, 8, 16, 32]
 

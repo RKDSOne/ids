@@ -27,17 +27,16 @@ class Description(imalgo):
 
 
 def foo_describe_data(dname):
-    print '\n\t'+dname
+    print '\n\t' + dname
     ret = DataReader("../conf.json").read(dname, sep_label=False)
-    data=ret[1]
+    data = ret[1]
     disc = Description()
     disc.fit(data)
     disc.describe()
 
 
 def main():
-    data_list = ['uair', 'abalone', 'isolet', 'letter',
-                 'mf-zer', 'mf-mor', 'pima', 'sat']
+    data_list = ['abalone', 'haber', 'iono', 'isolet', 'letter', 'mf-mor', 'mf-zer', 'pima', 'sat', 'uair']
     for dname in data_list:
         foo_describe_data(dname)
 
