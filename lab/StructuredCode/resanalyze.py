@@ -1,12 +1,12 @@
 import pandas
-import os
+import os, sys
 import json
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
-import sys
 import re
+from ids import imfeature
 
 
 # TODO: just choose the best result
@@ -92,6 +92,9 @@ class TableView(object):
                 [i.split(',') + [res_json[i]] for i in res_json.keys()]))
         s.data_list = np.unique(s.res[0][2])
         s.algos = np.unique(s.res[0][0])
+        # sort them in alphabet order
+        s.data_list = sorted(s.data_list)
+        s.algos = sorted(s.algos)
 
     def analyze_fusion(s, fm):
         ret = {}
@@ -122,7 +125,7 @@ class TableView(object):
         tabel_res.columns = s.algos
         tabel_res['Dataset'] = s.data_list
         cols = tabel_res.columns
-        tabel_res = tabel_res[['Dataset'] + s.algos.tolist()]
+        tabel_res = tabel_res[['Dataset'] + s.algos]
         print tabel_res
         return tabel_res
 
@@ -130,8 +133,17 @@ class TableView(object):
 if __name__ == '__main__':
     conf = json.load(open('conf.json'))
     st, ed = int(sys.argv[1]), int(sys.argv[2])
-    file_path_constructor  = lambda o: os.path.join(conf['path'], 'lab/results', 'res{0}.json'.format(o))
-    res = TableView([file_path_constructor(i) for i in xrange(st, ed)])
-    tabel = res.show()
+    file_path_constructor = lambda o: os.path.join(conf['path'], 'lab/results', 'res{0}.json'.format(o))
+    tv = TableView([file_path_constructor(i) for i in xrange(st, ed)])
+    tabel = tv.show()
+
+    imr_list=[]
+    ovlap_list=[]
+    for dname in tv.data_list:
+        imr, ovlap = imfeature.foo_describe_data(dname, 'conf.json')
+        imr_list.append(imr)
+        ovlap_list.append(ovlap)
+    tabel['imr']=pandas.Series(imr_list)
+    tabel['ovlap']=pandas.Series(ovlap_list)
     tabel.to_csv(os.path.join(
-        conf['path'], 'lab/results', 'temp.csv'), index=False)
+        conf['path'], 'lab/results', 'pre.csv'), index=False)

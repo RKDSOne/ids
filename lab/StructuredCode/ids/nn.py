@@ -13,7 +13,6 @@ class Discription(object):
     def __init__(s):
         super(Discription, s).__init__()
 
-    @imalgo.datazip_decorator
     def fit(s, data):
         s.load_data(data)
         s.identify()

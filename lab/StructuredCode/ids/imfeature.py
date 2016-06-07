@@ -8,10 +8,13 @@ from IO import DataReader
 class Description(imalgo):
     """Data Description module of Imbalanced Learning Framework"""
 
-    def __init__(s, k_wbnr=8, k_ovlap=1):
+    def __init__(s, conf_path, k_wbnr=8, k_ovlap=1):
         super(Description, s).__init__()
+        s.conf_path = conf_path
+        s.conf = json.load(open(s.conf_path))
         s.k_wbnr = k_wbnr
         s.k_ovlap = k_ovlap
+        s.dname = None
 
     def calc_minoNN(s):
         s.mdl_mino = NearestNeighbors(n_neighbors=s.k_wbnr, n_jobs=-1)
@@ -23,7 +26,7 @@ class Description(imalgo):
         dis, _ = s.mdl.kneighbors()
         dis_mino, _ = s.mdl_mino.kneighbors()
         l2norm = lambda o: np.linalg.norm(o, ord=2, axis=1)
-        return np.sqrt(l2norm(dis[s.y==s.minolab]) / l2norm(dis_mino))
+        return np.sqrt(l2norm(dis[s.y == s.minolab]) / l2norm(dis_mino))
 
     def overlap(s):
         minoN = sum(s.y == s.minolab)
@@ -34,31 +37,30 @@ class Description(imalgo):
 
     def fit(s, dname):
         s.dname = dname
-        ret = DataReader("../conf.json").read(dname, sep_label=False)
+        ret = DataReader(s.conf_path).read(dname, sep_label=False)
         data = ret[1]
         s.load_data(data)
         s.identify()
         s.mdl = NearestNeighbors(n_neighbors=max(s.k_wbnr, s.k_ovlap), n_jobs=-1)
         s.mdl.fit(s.X)
 
-    def describe(s):
-        print s.imr
-
-        print s.overlap()
-
+    def describe(s, show_figure=False):
         WBNR = s.small_disjuncts()
+        plt.clf()
         plt.hist(WBNR, bins=25)
         plt.xlim(0, 1)
-        plt.show()
-        print os.getcwd()
-        plt.savefig('../figures/WBNR/{0}.png'.format(s.dname), transparent=True)
+        if show_figure:
+            plt.show()
+        gen_path = lambda o: os.path.join(s.conf['path'], 'lab/results/figures/WBNR/{0}.png'.format(o))
+        plt.savefig(gen_path(s.dname), transparent=True)
+        return s.imr, s.overlap()[0]
 
 
-def foo_describe_data(dname):
+def foo_describe_data(dname, conf_path, show_figure=False):
     print '\n\t' + dname
-    disc = Description()
+    disc = Description(conf_path)
     disc.fit(dname)
-    disc.describe()
+    return disc.describe(show_figure)
 
 
 def main():
