@@ -71,11 +71,12 @@ class PlotView(object):
                 s.res[0] == algo, s.res[2] == data)]
             for i in range(tmpdf.shape[0]):
                 irec = tmpdf.iloc[i]
-                imf = irec[3]
-                iana = s.analyze_fusion(imf)
+                ifm = irec[3]
+                iana = s.analyze_fusion(ifm)
                 x.append(s.param_list[algo].index(float(irec[1])))
                 y.append(iana[metric])
-            x, y = zip(*sorted(zip(x, y), key=lambda o: o[0]))
+            if x[0]!=-1:
+                x, y = zip(*sorted(zip(x, y), key=lambda o: o[0]))
             plt.plot(y, label=data)
         plt.legend()
         plt.show()
@@ -130,20 +131,34 @@ class TableView(object):
         return tabel_res
 
 
-if __name__ == '__main__':
+def main():
+    if len(sys.argv) == 3:
+        st, ed = int(sys.argv[1]), int(sys.argv[2])
+    else:
+        st, ed = 8, 13
     conf = json.load(open('conf.json'))
-    st, ed = int(sys.argv[1]), int(sys.argv[2])
     file_path_constructor = lambda o: os.path.join(conf['path'], 'lab/results', 'res{0}.json'.format(o))
     tv = TableView([file_path_constructor(i) for i in xrange(st, ed)])
     tabel = tv.show()
 
-    imr_list=[]
-    ovlap_list=[]
+    imr_list = []
+    ovlap_list = []
     for dname in tv.data_list:
         imr, ovlap = imfeature.foo_describe_data(dname, 'conf.json')
         imr_list.append(imr)
         ovlap_list.append(ovlap)
-    tabel['imr']=pandas.Series(imr_list)
-    tabel['ovlap']=pandas.Series(ovlap_list)
+    tabel['imr'] = pandas.Series(imr_list)
+    tabel['ovlap'] = pandas.Series(ovlap_list)
     tabel.to_csv(os.path.join(
         conf['path'], 'lab/results', 'pre.csv'), index=False)
+
+
+def see_vsvm():
+    conf = json.load(open('conf.json'))
+    file_path_constructor = lambda o: os.path.join(conf['path'], 'lab/results', 'res{0}.json'.format(o))
+    tmp = PlotView(file_path_constructor(8))
+    tmp.algo_view('vSVM')
+
+
+if __name__ == '__main__':
+    main()

@@ -83,7 +83,7 @@ def main(thread_method='threading', paral_jobs=-1):
     #             'letter', 'mf-mor', 'mf-zer', 'pima', 'sat', 'uair']
     data_list = ['sat20']
     gamma_list = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4,
-                  1e-3, 1e-2, 1e-1, 1, 2, 4, 8, 16, 32]
+                  1e-3, 1e-2, 1e-1, 1, 2]
 
     all_res = {}
     for data in data_list:
@@ -130,10 +130,7 @@ def main(thread_method='threading', paral_jobs=-1):
 
 
 def unit_test():
-    data_list = ['abalone', 'isolet', 'letter',
-                 'mf-zer', 'mf-mor', 'pima', 'sat']
-
-    for data in data_list[-2:-1]:
+    for data in ['pima']:
         # ret = evaluate(MWMOTE(7, 5, 5, 3, 5, mdl_args=dict(gamma=32)), data)
         ret = evaluate(EasyEnsemble(), data)
         print ret

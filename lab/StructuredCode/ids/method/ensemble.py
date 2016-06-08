@@ -19,11 +19,13 @@ class EasyEnsemble(imalgo):
     def numPacks(s):
         if s.imr <= 3:
             return 3
-        elif s.imr <= 7:
-            return int(s.imr) + 1
         else:
-            tmp_coef = np.sqrt(7) + 0.0001
-            return int(tmp_coef * np.sqrt(s.imr)) + 1
+            return int(s.imr) + 1
+            # elif s.imr <= 7:
+            #     return int(s.imr) + 1
+            # else:
+            #     tmp_coef = np.sqrt(7) + 0.0001
+            #     return int(tmp_coef * np.sqrt(s.imr)) + 1
 
     @imalgo.datazip_decorator
     def fit(s, data):

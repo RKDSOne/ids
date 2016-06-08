@@ -52,6 +52,8 @@ $app.Run("Macro1")
 $wb.Save()
 $xl.Quit()
 Echo "OK!"
+# this pause is a delay helps system get right Excel process.
 pause
 $postExcelProcesses = Get-Process -name "*Excel*" | % { $_.Id }
 $postExcelProcesses | % { Stop-Process -Id $_ }
+Remove-Item $fname
