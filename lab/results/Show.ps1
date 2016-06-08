@@ -50,4 +50,8 @@ $xlmodule.CodeModule.AddFromString($code)
 $app = $xl.Application
 $app.Run("Macro1")
 $wb.Save()
-$xl.Visible = $true
+$xl.Quit()
+Echo "OK!"
+pause
+$postExcelProcesses = Get-Process -name "*Excel*" | % { $_.Id }
+$postExcelProcesses | % { Stop-Process -Id $_ }
