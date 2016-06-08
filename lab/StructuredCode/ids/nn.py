@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
-from ids import io as idsdr
+from ids import IO as idsdr
 from base import *
 
 

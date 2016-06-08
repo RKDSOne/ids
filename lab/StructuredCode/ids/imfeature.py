@@ -64,7 +64,7 @@ def foo_describe_data(dname, conf_path, show_figure=False):
 
 
 def main():
-    data_list = ['abalone', 'haber', 'iono', 'isolet', 'letter', 'mf-mor', 'mf-zer', 'pima', 'sat', 'uair']
+    data_list = ['abalone', 'haber', 'iono', 'isolet', 'letter', 'mf-mor', 'mf-zer', 'pima', 'sat', 'sat20', 'uair']
     for dname in data_list:
         foo_describe_data(dname)
 

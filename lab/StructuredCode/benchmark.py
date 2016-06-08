@@ -79,11 +79,9 @@ def main(thread_method='threading', paral_jobs=-1):
                 ret = max(ret, int(fname[3:-5]))
         return ret
 
-    # data_list = ['abalone', 'haber', 'iono', 'isolet',
-    #             'letter', 'mf-mor', 'mf-zer', 'pima', 'sat', 'uair']
-    data_list = ['sat20']
-    gamma_list = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4,
-                  1e-3, 1e-2, 1e-1, 1, 2]
+    data_list = ['abalone', 'haber', 'iono', 'isolet', 'letter', 'mf-mor', 'mf-zer', 'pima', 'sat', 'sat20', 'uair']
+    gamma_list = [1e-08, 5e-08, 1e-07, 5e-07, 1e-06, 5e-06, 1e-05, 5e-05, 0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1,
+                  0.5, 1, 1.5, 2, 2.5, 3]
 
     all_res = {}
     for data in data_list:
@@ -145,14 +143,24 @@ def test_MTS(dname):
     print res
     print '{0} of {1} predicted right'.format(len(res), sum(res))
 
+
 """
 To take the average results of all algorithms, run this PowerShell script:
 
+Powershell:
+----------------
 for($i=1; $i -le 5; $i++)
 {
     echo "Rep $i"
     python benchmark.py
 }
+
+Bash:
+----------------
+for((i=0; i<5; i++)); do
+    echo "Rep $i"
+    python benchmark.py
+done
 """
 if __name__ == '__main__':
     t1 = pytime.clock()
