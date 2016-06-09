@@ -3,6 +3,7 @@ function Get-Curdir
     return (Get-Item -Path ".\" -Verbose).FullName
 }
 
+cd ../results
 Copy-Item pre.csv table.csv
 $curdir = Get-Curdir
 $fname = ("{0}\table.csv" -f $curdir)
