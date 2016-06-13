@@ -47,8 +47,6 @@ class imalgo(object):
         if len(labs) != 2:
             raise TypeError('must be 2-classes classification task')
         s.minolab, s.majlab = labs if counts[0] < counts[1] else labs[::-1]
-        s.imr = counts[0] * 1.0 / (counts[0] + counts[1])
-        if sum(counts)==351:
-            pass
-        if s.imr >= 0.5:
-            s.imr = 1 - s.imr
+        s.imr = counts[0] * 1.0 / counts[1]
+        if s.imr < 1:
+            s.imr = 1 / s.imr

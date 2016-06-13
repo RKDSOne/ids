@@ -47,8 +47,9 @@ class Description(imalgo):
     def describe(s, show_figure=False):
         WBNR = s.small_disjuncts()
         plt.clf()
-        plt.hist(WBNR, bins=25)
-        plt.xlim(0, 1)
+        # plt.hist(WBNR, bins=25)
+        pd.Series(WBNR).plot.kde()
+        plt.xlim(0, 1.25)
         if show_figure:
             plt.show()
         gen_path = lambda o: os.path.join(s.conf['path'], 'lab/results/figures/WBNR/{0}.png'.format(o))
