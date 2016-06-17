@@ -5,6 +5,9 @@ from datetime import *
 import os
 import sys
 import matplotlib.pyplot as plt
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import AdaBoostClassifier
+
 
 plt.ion()
 plt.style.use('default')
@@ -50,7 +53,7 @@ def ovlap(jt=0.05):
 
 # Small disjuncts
 def disj(jt=0.05):
-    data=[]
+    data = []
 
     plt.clf()
     majN = 75
@@ -68,10 +71,44 @@ def disj(jt=0.05):
         x.append(tx)
         y.append(ty)
 
-
-
     x = np.random.rand(minoN) + 0.3 + np.random.randn(minoN) * jt
     y = np.random.rand(minoN) + 0.3 + np.random.randn(minoN) * jt
     plt.plot(x, y, '*', ms=20)
     plt.title('Small Disjunts')
     plt.savefig('disj', transparent=True)
+
+
+def sampling_overfitting(rate=3):
+    data = []
+
+    plt.figure(1)
+    plt.clf()
+    majN = 100
+    minoN = 20
+    jt = 1
+    x = np.random.rand(majN) * 2 - 1 + np.random.randn(majN) * jt
+    y = np.random.rand(majN) * 2 - 1 + np.random.randn(majN) * jt
+    plt.plot(x, y, 'o', ms=10)
+    for i in xrange(majN):
+        data.append([x[i], y[i], 0])
+
+    x = np.random.rand(minoN) + 0.1 + np.random.randn(minoN) * jt
+    y = np.random.rand(minoN) + 0.1 + np.random.randn(minoN) * jt
+    plt.plot(x, y, '*', ms=10)
+    for i in xrange(minoN):
+        for j in xrange(rate):
+            data.append([x[i], y[i], 1])
+    xlim, ylim = plt.xlim(), plt.ylim()
+
+    mdl = DecisionTreeClassifier(criterion='entropy')
+    data = np.array(data)
+    mdl.fit(data[:, :-1], data[:, -1])
+
+    x = np.linspace(xlim[0], xlim[1], 300)
+    y = np.linspace(ylim[0], ylim[1], 300)
+    X, Y = np.meshgrid(x, y)
+    grid_points = np.c_[X.ravel(), Y.ravel()]
+    Z = mdl.predict(grid_points)
+    Z = Z.reshape((len(x), -1))
+    plt.contourf(x, y, Z, 1)
+    plt.show()
