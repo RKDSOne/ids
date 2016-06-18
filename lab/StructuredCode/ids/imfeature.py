@@ -50,10 +50,15 @@ class Description(imalgo):
         # plt.hist(WBNR, bins=25)
         pd.Series(WBNR).plot.kde()
         plt.xlim(0, 1.25)
+        plt.xlabel(r'$\gamma$')
+        plt.ylabel(r'$p(\gamma)$')
+        plt.title(s.dname, fontsize='xx-large')
         if show_figure:
             plt.show()
         gen_path = lambda o: os.path.join(s.conf['path'], 'lab/results/figures/WBNR/{0}.png'.format(o))
-        plt.savefig(gen_path(s.dname), transparent=True)
+        plt.gcf().set_size_inches([3,3])
+        plt.gcf().subplots_adjust(0.20, 0.15, 0.95, 0.88)
+        plt.savefig(gen_path(s.dname), transparent=True, dpi=200)
         return s.imr, s.overlap()[0]
 
 
@@ -67,7 +72,7 @@ def foo_describe_data(dname, conf_path, show_figure=False):
 def main():
     data_list = ['abalone', 'haber', 'iono', 'isolet', 'letter', 'mf-mor', 'mf-zer', 'pima', 'sat', 'sat20', 'uair']
     for dname in data_list:
-        foo_describe_data(dname)
+        foo_describe_data(dname, '../conf.json')
 
 
 if __name__ == '__main__':
